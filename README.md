@@ -2,9 +2,9 @@
 
 A small Python package plus helper scripts that:
 
-* clean and resample Taiwan option / futures data  
-* compute Black–Scholes **implied volatilities (IV)**  
-* calibrate the **SVI** volatility surface  
+* clean and resample Taiwan option / futures data, e.g., TX and TXO
+* compute **implied volatilities (IV)**  
+* calibrate the volatility smile / surface via raw-SVI
 * create interactive HTML plots
 
 ## Project Structure
