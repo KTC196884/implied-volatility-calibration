@@ -71,9 +71,12 @@ class SVISettings:
         (1e-8, None), # sigma
     )
     default_init_params: Tuple[float] = (5.535282e-06, 0.024417, -0.583708, -0.026350, 0.069624)
-    call_mask_left: float = -0.01
-    put_mask_right: float = 0.01
+    call_lower_bound: float = -0.01
+    put_upper_bound: float = 0.01
+    call_volume_pct: float = 5.0
+    put_volume_pct: float = 5.0
 
 # instantiate once, import these in your modules:
 PATHS    = Paths()
 SETTINGS = Settings()
+SVI_SETTINGS = SVISettings()

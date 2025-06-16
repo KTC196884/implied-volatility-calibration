@@ -2,7 +2,7 @@ from typing import Sequence, Optional, Union
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
-from iv_calibration.config import SVISettings, SETTINGS
+from iv_calibration.config import SVI_SETTINGS, SETTINGS
 
 def compute_svi_total_ivar(
     k: Union[float, np.ndarray],
@@ -46,9 +46,15 @@ def construct_valid_mask(
     put_vol_threshold  = None
     
     if np.any(base_mask & is_call):
-        call_vol_threshold = np.percentile(volume[base_mask & is_call], 5)
+        call_vol_threshold = np.percentile(
+            volume[base_mask & is_call],
+            SVI_SETTINGS.call_volume_pct
+        )
     if np.any(base_mask & is_put):
-        put_vol_threshold  = np.percentile(volume[base_mask & is_put], 5)
+        put_vol_threshold  = np.percentile(
+            volume[base_mask & is_put],
+            SVI_SETTINGS.put_volume_pct
+        )
 
     # 標記要剔除的 call / put
     remove_call = False
@@ -58,14 +64,14 @@ def construct_valid_mask(
         remove_call = (
             is_call &
             base_mask &
-            (log_moneyness < -0.01) &
+            (log_moneyness < SVI_SETTINGS.call_lower_bound) &
             (volume <= call_vol_threshold)
         )
     if put_vol_threshold is not None:
         remove_put = (
             is_put &
             base_mask &
-            (log_moneyness > 0.01) &
+            (log_moneyness > SVI_SETTINGS.put_upper_bound) &
             (volume <= put_vol_threshold)
         )
 
@@ -83,7 +89,7 @@ def calibrate_svi(
     log_moneyness: np.ndarray,
     total_ivar: np.ndarray,
     volume: np.ndarray,
-    init_params: Sequence[float] = SVISettings.default_init_params
+    init_params: Sequence[float] = SVI_SETTINGS.default_init_params
 ) -> Optional[np.ndarray]:
     valid_mask = construct_valid_mask(
         opt_type,
@@ -103,7 +109,7 @@ def calibrate_svi(
                 total_ivar[valid_mask],
                 volume[valid_mask]
             ),
-            bounds=SVISettings.global_bounds,
+            bounds=SVI_SETTINGS.global_bounds,
             method='L-BFGS-B',
             options={'maxiter': 100000, 'gtol': 1e-12, 'ftol': 1e-12}
         )
@@ -113,7 +119,7 @@ def calibrate_svi(
 
 def compute_svi_params(option_resampled_df: pd.DataFrame) -> pd.DataFrame:
     params_records = []
-    init_params = SVISettings.default_init_params
+    init_params = SVI_SETTINGS.default_init_params
     for ts, group_df in option_resampled_df.groupby(level='ts'):
         opt_type = group_df.index.get_level_values('option_type').values
         strike = group_df.index.get_level_values('strike').values
@@ -129,7 +135,7 @@ def compute_svi_params(option_resampled_df: pd.DataFrame) -> pd.DataFrame:
 
         if params is None:
             a, b, rho, m, sigma = [np.nan] * 5
-            init_params = SVISettings.default_init_params
+            init_params = SVI_SETTINGS.default_init_params
         else:
             a, b, rho, m, sigma = params
             init_params = params
