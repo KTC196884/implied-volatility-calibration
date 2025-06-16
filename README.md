@@ -102,8 +102,7 @@ sp.plot_with_slider(
     Path("results/svi_iv_slider.html")
 )
 ```
-dp.main() and the plotting helpers are convenience wrappers;
-for fine‑grained control import the underlying functions directly.
+*`dp.main()` and the plotting helpers are convenience wrappers; for fine‑grained control import the underlying functions directly.*
 
 ### Command-line scripts
 ```bash
