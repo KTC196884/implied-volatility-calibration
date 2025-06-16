@@ -58,11 +58,11 @@ def plot_with_slider(
         all_k = np.concatenate(all_k)
         all_y = np.concatenate(all_y)
         k_min, k_max = all_k.min(), all_k.max()
-        margin = (k_max - k_min) * 0.05
-        k_ranges.append((k_min - margin, k_max + margin))
+        margin = k_max - k_min
+        k_ranges.append((k_min - margin * 0.05, k_max + margin * 0.15))
         y_min, y_max = all_y.min(), all_y.max()
-        margin = (y_max - y_min) * 0.05
-        y_ranges.append((y_min - margin, y_max + margin))
+        margin = y_max - y_min
+        y_ranges.append((y_min - margin * 0.05, y_max + margin * 0.15))
     
     fig = go.Figure()
     fig.add_trace(go.Scatter(
